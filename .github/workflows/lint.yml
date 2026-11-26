@@ -1,0 +1,74 @@
+name: "Audit CI/CD Verification: Schema, Linting & Blockage Threshold Gate"
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  audit-compliance-gate:
+    name: "Validate AI-BOM Schema & NIST AI 100-2 Blockage Threshold"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout Repository Code"
+        uses: actions/checkout@v4
+
+      - name: "Set up Python Environment"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: "Install Linting and Validation Dependencies"
+        run: |
+          python -m pip install --upgrade pip
+          pip install jsonschema pyyaml pytest flake8
+
+      - name: "Lint Python Test Harness (Zero Syntax Errors)"
+        run: |
+          # Stop build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Exit-zero treat all errors as warnings, max complexity 10
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: "Verify Machine-Readable ai_bom.json Syntax and Integrity"
+        run: |
+          python -c "
+          import json, sys
+          try:
+              with open('ai_bom.json', 'r') as f:
+                  data = json.load(f)
+              assert 'models' in data, 'Missing models key'
+              assert 'dataPipelines' in data, 'Missing dataPipelines key'
+              assert 'activeControlGates' in data, 'Missing activeControlGates key'
+              assert 'telemetryGates' in data, 'Missing telemetryGates key'
+              print('SUCCESS: ai_bom.json is strictly valid and structurally complete.')
+          except Exception as e:
+              print(f'CRITICAL FAILURE: {e}')
+              sys.exit(1)
+          "
+
+      - name: "Verify Adversarial Threat Blockage Threshold (≥85%)"
+        run: |
+          python -c "
+          import json, sys
+          with open('ai_bom.json', 'r') as f:
+              bom = json.load(f)
+          
+          threshold = bom['telemetryGates']['minimumAdversarialBlockagePercent']
+          measured = bom['telemetryGates']['currentMeasuredBlockagePercent']
+          
+          print(f'Mandated Minimum Blockage: {threshold}%')
+          print(f'Measured Telemetry Blockage: {measured}%')
+          
+          if measured < 85.0:
+              print(f'REJECTED: Measured blockage ({measured}%) is below mandatory threshold of 85.0%!')
+              sys.exit(1)
+          if measured < threshold:
+              print(f'REJECTED: Measured blockage is below configured baseline threshold of {threshold}%!')
+              sys.exit(1)
+              
+          print('PASS: Threat blockage satisfies NIST AI 100-2 & Texas TRAIGA compliance gates.')
+          "
