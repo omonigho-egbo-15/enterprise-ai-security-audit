@@ -5,7 +5,6 @@
   "serialNumber": "urn:uuid:7f3a881b-9442-4f32-8419-e932b1239c01",
   "version": 1,
   "metadata": {
-<<<<<<< HEAD
     "timestamp": "2026-11-26T12:00:00Z",
     "authors": [
       {
@@ -26,21 +25,39 @@
       "name": "core-nlp-engine-v2",
       "version": "3.1-70b-instruct",
       "description": "Llama-3.1-70B-Instruct quantized AWQ inference engine running on Triton 24.08",
-      "licenses": [{"license": {"id": "Meta-Llama-3.1"}}]
+      "licenses": [
+        {
+          "license": {
+            "id": "Meta-Llama-3.1"
+          }
+        }
+      ]
     },
     {
       "type": "machine-learning-model",
       "name": "guardrail-deberta-v3",
       "version": "1.0.0",
       "description": "DeBERTa-v3-Base Prompt Injection and Evasion Classifier running on ONNX Runtime",
-      "licenses": [{"license": {"id": "MIT"}}]
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
     },
     {
       "type": "data-pipeline",
       "name": "dp-context-retrieval-01",
       "version": "1.2.0",
       "description": "Enterprise RAG vector store using pgvector, OpenAI text-embedding-3-large, HNSW indexing",
-      "licenses": [{"license": {"id": "Apache-2.0"}}]
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
     }
   ],
   "controlGates": [
@@ -56,73 +73,10 @@
         "slaTargetAvailability": 0.999,
         "falsePositiveOutageIncidents": 0,
         "averageLatencyMs": 14.2
-=======
-    "timestamp": "2026-11-25T12:00:00Z",
-    "organization": "Enterprise AI Security Operations",
-    "auditor": "Omonigho Khalin Egbo (GIT, Certified Data Scientist)",
-    "governanceFrameworks": [
-      "Texas Responsible AI Governance Act (TRAIGA)",
-      "EU AI Act (Regulation 2024/1689)",
-      "NIST AI 100-2 / AI RMF 1.0"
-    ]
-  },
-  "models": [
-    {
-      "modelId": "core-nlp-engine-v2",
-      "modelName": "Llama-3.1-70B-Instruct-Q4",
-      "provider": "Meta AI / Internal Inference Endpoint",
-      "type": "Large Language Model",
-      "parameters": "70B",
-      "quantization": "AWQ-4bit",
-      "hashSHA256": "8f4a13221c97a82ebd318e8d890a213e45f471e9a2245b6f79025c81de0f5921",
-      "runtimeEnvironment": "Triton Inference Server 24.08",
-      "intendedTask": "Enterprise document synthesis, classification, and conversational analytics"
-    },
-    {
-      "modelId": "guardrail-deberta-v3",
-      "modelName": "DeBERTa-v3-Base-Prompt-Injection-Classifier",
-      "provider": "ProtectAI / HuggingFace",
-      "type": "Sequence Classification Transformer",
-      "parameters": "86M",
-      "quantization": "FP16",
-      "hashSHA256": "5c98d61741ae09ef47814bca88921dfbb3027b508f7aa71c11e038ff3156ae23",
-      "runtimeEnvironment": "ONNX Runtime 1.19",
-      "intendedTask": "Ingress adversarial payload and prompt injection detection"
-    }
-  ],
-  "dataPipelines": [
-    {
-      "pipelineId": "dp-context-retrieval-01",
-      "dataSource": "Enterprise Vector Store (pgvector)",
-      "embeddingModel": "text-embedding-3-large",
-      "vectorDimensions": 3072,
-      "indexingAlgorithm": "HNSW (Cosine Distance)",
-      "complianceChecks": [
-        "Automated PII scrubbing prior to indexing",
-        "Role-Based Access Control (RBAC) row-level filtering",
-        "GDPR Art. 17 right-to-erasure reconciliation hook"
-      ]
-    }
-  ],
-  "activeControlGates": [
-    {
-      "gateId": "GATE-01-INGRESS",
-      "gateName": "Input Guardrail & Sanitization Proxy",
-      "status": "ENFORCED",
-      "configuration": {
-        "maxInputTokenLength": 4096,
-        "jailbreakClassifierThreshold": 0.82,
-        "disallowedPatternRegex": [
-          "(?i)(ignore previous instructions|system prompt leak|exfiltrate|base64_decode)",
-          "(?i)(<script|javascript:|DROP TABLE|UNION SELECT)"
-        ],
-        "latencyBudgetMs": 45
->>>>>>> origin/main
       }
     },
     {
       "gateId": "GATE-02-EGRESS",
-<<<<<<< HEAD
       "name": "Output PII & Leak Auditor",
       "type": "egress-filter",
       "enforcement": "redaction-and-blocking",
@@ -133,24 +87,4 @@
       }
     }
   ]
-=======
-      "gateName": "Output PII & System Prompt Leak Auditor",
-      "status": "ENFORCED",
-      "configuration": {
-        "piiRedactionEngine": "Microsoft Presidio v2.2",
-        "supportedEntities": ["EMAIL_ADDRESS", "PHONE_NUMBER", "US_SSN", "IP_ADDRESS", "API_KEY"],
-        "confidenceThreshold": 0.85,
-        "redactionPolicy": "HASH_REPLACE",
-        "systemPromptLeakCosineThreshold": 0.78
-      }
-    }
-  ],
-  "telemetryGates": {
-    "minimumAdversarialBlockagePercent": 85.0,
-    "currentMeasuredBlockagePercent": 91.4,
-    "slaAvailabilityPercent": 99.98,
-    "maxAllowableP99LatencyMs": 180.0,
-    "currentMeasuredP99LatencyMs": 138.5
-  }
->>>>>>> origin/main
 }
