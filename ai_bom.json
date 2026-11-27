@@ -35,9 +35,9 @@
       "license": "MIT"
     }
   ],
-  "data_sources": [
+  "dataPipelines": [
     {
-      "source_id": "dp-context-retrieval-01",
+      "pipeline_id": "dp-context-retrieval-01",
       "name": "Enterprise Vector Store (pgvector)",
       "version": "1.2.0",
       "embedding_model": "text-embedding-3-large",
@@ -45,10 +45,11 @@
       "compliance": ["PII Scrubbing", "RBAC", "GDPR Art. 17"]
     }
   ],
-  "control_gates": [
+  "activeControlGates": [
     {
       "gate_id": "GATE-01-INGRESS",
       "name": "Input Guardrail Proxy",
+      "type": "firewall-proxy",
       "enforcement": "blocking",
       "telemetry": {
         "target_blockage_rate": 0.85,
@@ -62,6 +63,7 @@
     {
       "gate_id": "GATE-02-EGRESS",
       "name": "Output PII & Leak Auditor",
+      "type": "egress-filter",
       "enforcement": "redaction-and-blocking",
       "telemetry": {
         "pii_redaction_rate": 0.948,
@@ -70,6 +72,14 @@
       }
     }
   ],
+  "telemetryGates": {
+    "targetBlockageRate": 0.85,
+    "measuredBlockageRate": 0.914,
+    "measuredAvailability": 0.9998,
+    "slaTargetAvailability": 0.999,
+    "falsePositiveOutageIncidents": 0,
+    "averageLatencyMs": 14.2
+  },
   "controlGates": [
     {
       "gateId": "GATE-01-INGRESS",
