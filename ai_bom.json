@@ -73,6 +73,9 @@
     }
   ],
   "telemetryGates": {
+    "minimumAdversarialBlockagePercent": 85.0,
+    "currentBlockagePercent": 91.4,
+    "measuredBlockagePercent": 91.4,
     "targetBlockageRate": 0.85,
     "measuredBlockageRate": 0.914,
     "measuredAvailability": 0.9998,
