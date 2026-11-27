@@ -19,70 +19,66 @@
       "description": "Production RAG orchestrator with ingress guardrails and egress audit controls"
     }
   },
-  "components": [
+  "models": [
     {
-      "type": "machine-learning-model",
-      "name": "core-nlp-engine-v2",
+      "model_id": "core-nlp-engine-v2",
+      "name": "Llama-3.1-70B-Instruct-Q4",
       "version": "3.1-70b-instruct",
-      "description": "Llama-3.1-70B-Instruct quantized AWQ inference engine running on Triton 24.08",
-      "licenses": [
-        {
-          "license": {
-            "id": "Meta-Llama-3.1"
-          }
-        }
-      ]
+      "framework": "Triton 24.08 / AWQ",
+      "license": "Meta-Llama-3.1"
     },
     {
-      "type": "machine-learning-model",
-      "name": "guardrail-deberta-v3",
+      "model_id": "guardrail-deberta-v3",
+      "name": "DeBERTa-v3-Base-Prompt-Injection-Classifier",
       "version": "1.0.0",
-      "description": "DeBERTa-v3-Base Prompt Injection and Evasion Classifier running on ONNX Runtime",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT"
-          }
-        }
-      ]
+      "framework": "ONNX Runtime 1.19",
+      "license": "MIT"
+    }
+  ],
+  "data_sources": [
+    {
+      "source_id": "dp-context-retrieval-01",
+      "name": "Enterprise Vector Store (pgvector)",
+      "version": "1.2.0",
+      "embedding_model": "text-embedding-3-large",
+      "indexing": "HNSW",
+      "compliance": ["PII Scrubbing", "RBAC", "GDPR Art. 17"]
+    }
+  ],
+  "control_gates": [
+    {
+      "gate_id": "GATE-01-INGRESS",
+      "name": "Input Guardrail Proxy",
+      "enforcement": "blocking",
+      "telemetry": {
+        "target_blockage_rate": 0.85,
+        "measured_blockage_rate": 0.914,
+        "measured_availability": 0.9998,
+        "sla_target_availability": 0.999,
+        "false_positive_outage_incidents": 0,
+        "average_latency_ms": 14.2
+      }
     },
     {
-      "type": "data-pipeline",
-      "name": "dp-context-retrieval-01",
-      "version": "1.2.0",
-      "description": "Enterprise RAG vector store using pgvector, OpenAI text-embedding-3-large, HNSW indexing",
-      "licenses": [
-        {
-          "license": {
-            "id": "Apache-2.0"
-          }
-        }
-      ]
+      "gate_id": "GATE-02-EGRESS",
+      "name": "Output PII & Leak Auditor",
+      "enforcement": "redaction-and-blocking",
+      "telemetry": {
+        "pii_redaction_rate": 0.948,
+        "credential_leak_rate": 0.0,
+        "false_positive_outage_incidents": 0
+      }
     }
   ],
   "controlGates": [
     {
       "gateId": "GATE-01-INGRESS",
       "name": "Input Guardrail Proxy",
-      "type": "firewall-proxy",
-      "enforcement": "blocking",
       "telemetry": {
         "targetBlockageRate": 0.85,
         "measuredBlockageRate": 0.914,
         "measuredAvailability": 0.9998,
         "slaTargetAvailability": 0.999,
-        "falsePositiveOutageIncidents": 0,
-        "averageLatencyMs": 14.2
-      }
-    },
-    {
-      "gateId": "GATE-02-EGRESS",
-      "name": "Output PII & Leak Auditor",
-      "type": "egress-filter",
-      "enforcement": "redaction-and-blocking",
-      "telemetry": {
-        "piiRedactionRate": 0.948,
-        "credentialLeakRate": 0.0,
         "falsePositiveOutageIncidents": 0
       }
     }
