@@ -5,95 +5,92 @@
   "serialNumber": "urn:uuid:7f3a881b-9442-4f32-8419-e932b1239c01",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-11-26T12:00:00Z",
-    "authors": [
-      {
-        "name": "Omonigho Khalin Egbo",
-        "role": "Lead AI Security Auditor"
-      }
-    ],
-    "component": {
-      "type": "application",
-      "name": "Enterprise AI Multi-Agent Gateway",
-      "version": "2.4.0",
-      "description": "Production RAG orchestrator with ingress guardrails and egress audit controls"
-    }
+    "timestamp": "2026-11-25T12:00:00Z",
+    "organization": "Enterprise AI Security Operations",
+    "auditor": "Omonigho Khalin Egbo (GIT, Certified Data Scientist)",
+    "governanceFrameworks": [
+      "Texas Responsible AI Governance Act (TRAIGA)",
+      "EU AI Act (Regulation 2024/1689)",
+      "NIST AI 100-2 / AI RMF 1.0"
+    ]
   },
   "models": [
     {
-      "model_id": "core-nlp-engine-v2",
-      "name": "Llama-3.1-70B-Instruct-Q4",
-      "version": "3.1-70b-instruct",
-      "framework": "Triton 24.08 / AWQ",
-      "license": "Meta-Llama-3.1"
+      "modelId": "core-nlp-engine-v2",
+      "modelName": "Llama-3.1-70B-Instruct-Q4",
+      "provider": "Meta AI / Internal Inference Endpoint",
+      "type": "Large Language Model",
+      "parameters": "70B",
+      "quantization": "AWQ-4bit",
+      "hashSHA256": "8f4a13221c97a82ebd318e8d890a213e45f471e9a2245b6f79025c81de0f5921",
+      "runtimeEnvironment": "Triton Inference Server 24.08",
+      "intendedTask": "Enterprise document synthesis, classification, and conversational analytics"
     },
     {
-      "model_id": "guardrail-deberta-v3",
-      "name": "DeBERTa-v3-Base-Prompt-Injection-Classifier",
-      "version": "1.0.0",
-      "framework": "ONNX Runtime 1.19",
-      "license": "MIT"
+      "modelId": "guardrail-deberta-v3",
+      "modelName": "DeBERTa-v3-Base-Prompt-Injection-Classifier",
+      "provider": "ProtectAI / HuggingFace",
+      "type": "Sequence Classification Transformer",
+      "parameters": "86M",
+      "quantization": "FP16",
+      "hashSHA256": "5c98d61741ae09ef47814bca88921dfbb3027b508f7aa71c11e038ff3156ae23",
+      "runtimeEnvironment": "ONNX Runtime 1.19",
+      "intendedTask": "Ingress adversarial payload and prompt injection detection"
     }
   ],
   "dataPipelines": [
     {
-      "pipeline_id": "dp-context-retrieval-01",
-      "name": "Enterprise Vector Store (pgvector)",
-      "version": "1.2.0",
-      "embedding_model": "text-embedding-3-large",
-      "indexing": "HNSW",
-      "compliance": ["PII Scrubbing", "RBAC", "GDPR Art. 17"]
+      "pipelineId": "dp-context-retrieval-01",
+      "dataSource": "Enterprise Vector Store (pgvector)",
+      "embeddingModel": "text-embedding-3-large",
+      "vectorDimensions": 3072,
+      "indexingAlgorithm": "HNSW (Cosine Distance)",
+      "complianceChecks": [
+        "Automated PII scrubbing prior to indexing",
+        "Role-Based Access Control (RBAC) row-level filtering",
+        "GDPR Art. 17 right-to-erasure reconciliation hook"
+      ]
     }
   ],
   "activeControlGates": [
     {
-      "gate_id": "GATE-01-INGRESS",
-      "name": "Input Guardrail Proxy",
-      "type": "firewall-proxy",
-      "enforcement": "blocking",
-      "telemetry": {
-        "target_blockage_rate": 0.85,
-        "measured_blockage_rate": 0.914,
-        "measured_availability": 0.9998,
-        "sla_target_availability": 0.999,
-        "false_positive_outage_incidents": 0,
-        "average_latency_ms": 14.2
+      "gateId": "GATE-01-INGRESS",
+      "gateName": "Input Guardrail & Sanitization Proxy",
+      "status": "ENFORCED",
+      "configuration": {
+        "maxInputTokenLength": 4096,
+        "jailbreakClassifierThreshold": 0.82,
+        "disallowedPatternRegex": [
+          "(?i)(ignore previous instructions|system prompt leak|exfiltrate|base64_decode)",
+          "(?i)(<script|javascript:|DROP TABLE|UNION SELECT)"
+        ],
+        "latencyBudgetMs": 45
       }
     },
     {
-      "gate_id": "GATE-02-EGRESS",
-      "name": "Output PII & Leak Auditor",
-      "type": "egress-filter",
-      "enforcement": "redaction-and-blocking",
-      "telemetry": {
-        "pii_redaction_rate": 0.948,
-        "credential_leak_rate": 0.0,
-        "false_positive_outage_incidents": 0
+      "gateId": "GATE-02-EGRESS",
+      "gateName": "Output PII & System Prompt Leak Auditor",
+      "status": "ENFORCED",
+      "configuration": {
+        "piiRedactionEngine": "Microsoft Presidio v2.2",
+        "supportedEntities": [
+          "EMAIL_ADDRESS",
+          "PHONE_NUMBER",
+          "US_SSN",
+          "IP_ADDRESS",
+          "API_KEY"
+        ],
+        "confidenceThreshold": 0.85,
+        "redactionPolicy": "HASH_REPLACE",
+        "systemPromptLeakCosineThreshold": 0.78
       }
     }
   ],
   "telemetryGates": {
     "minimumAdversarialBlockagePercent": 85.0,
-    "currentBlockagePercent": 91.4,
-    "measuredBlockagePercent": 91.4,
-    "targetBlockageRate": 0.85,
-    "measuredBlockageRate": 0.914,
-    "measuredAvailability": 0.9998,
-    "slaTargetAvailability": 0.999,
-    "falsePositiveOutageIncidents": 0,
-    "averageLatencyMs": 14.2
-  },
-  "controlGates": [
-    {
-      "gateId": "GATE-01-INGRESS",
-      "name": "Input Guardrail Proxy",
-      "telemetry": {
-        "targetBlockageRate": 0.85,
-        "measuredBlockageRate": 0.914,
-        "measuredAvailability": 0.9998,
-        "slaTargetAvailability": 0.999,
-        "falsePositiveOutageIncidents": 0
-      }
-    }
-  ]
+    "currentMeasuredBlockagePercent": 91.4,
+    "slaAvailabilityPercent": 99.98,
+    "maxAllowableP99LatencyMs": 180.0,
+    "currentMeasuredP99LatencyMs": 138.5
+  }
 }
