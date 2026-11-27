@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "bomFormat": "Enterprise-AI-BOM",
+  "specVersion": "1.4",
+  "serialNumber": "urn:uuid:7f3a881b-9442-4f32-8419-e932b1239c01",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-11-26T12:00:00Z",
+    "authors": [
+      {
+        "name": "Omonigho Khalin Egbo",
+        "role": "Lead AI Security Auditor"
+      }
+    ],
+    "component": {
+      "type": "application",
+      "name": "Enterprise AI Multi-Agent Gateway",
+      "version": "2.4.0",
+      "description": "Production RAG orchestrator with ingress guardrails and egress audit controls"
+    }
+  },
+  "components": [
+    {
+      "type": "machine-learning-model",
+      "name": "core-nlp-engine-v2",
+      "version": "3.1-70b-instruct",
+      "description": "Llama-3.1-70B-Instruct quantized AWQ inference engine running on Triton 24.08",
+      "licenses": [{"license": {"id": "Meta-Llama-3.1"}}]
+    },
+    {
+      "type": "machine-learning-model",
+      "name": "guardrail-deberta-v3",
+      "version": "1.0.0",
+      "description": "DeBERTa-v3-Base Prompt Injection and Evasion Classifier running on ONNX Runtime",
+      "licenses": [{"license": {"id": "MIT"}}]
+    },
+    {
+      "type": "data-pipeline",
+      "name": "dp-context-retrieval-01",
+      "version": "1.2.0",
+      "description": "Enterprise RAG vector store using pgvector, OpenAI text-embedding-3-large, HNSW indexing",
+      "licenses": [{"license": {"id": "Apache-2.0"}}]
+    }
+  ],
+  "controlGates": [
+    {
+      "gateId": "GATE-01-INGRESS",
+      "name": "Input Guardrail Proxy",
+      "type": "firewall-proxy",
+      "enforcement": "blocking",
+      "telemetry": {
+        "targetBlockageRate": 0.85,
+        "measuredBlockageRate": 0.914,
+        "measuredAvailability": 0.9998,
+        "slaTargetAvailability": 0.999,
+        "falsePositiveOutageIncidents": 0,
+        "averageLatencyMs": 14.2
+      }
+    },
+    {
+      "gateId": "GATE-02-EGRESS",
+      "name": "Output PII & Leak Auditor",
+      "type": "egress-filter",
+      "enforcement": "redaction-and-blocking",
+      "telemetry": {
+        "piiRedactionRate": 0.948,
+        "credentialLeakRate": 0.0,
+        "falsePositiveOutageIncidents": 0
+      }
+    }
+  ]
+}
